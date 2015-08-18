@@ -1,0 +1,136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Feedit-svn] r74 - trunk
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/feedit-svn/2006-September/index.html" >
+   <LINK REL="made" HREF="mailto:feedit-svn%40lists.berlios.de?Subject=Re%3A%20%5BFeedit-svn%5D%20r74%20-%20trunk&In-Reply-To=%3C200609070110.k871AsIK022622%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Feedit-svn] r74 - trunk</H1>
+    <B>gururamnath at mail.berlios.de</B> 
+    <A HREF="mailto:feedit-svn%40lists.berlios.de?Subject=Re%3A%20%5BFeedit-svn%5D%20r74%20-%20trunk&In-Reply-To=%3C200609070110.k871AsIK022622%40sheep.berlios.de%3E"
+       TITLE="[Feedit-svn] r74 - trunk">gururamnath at mail.berlios.de
+       </A><BR>
+    <I>Thu Sep  7 03:10:54 CEST 2006</I>
+    <P><UL>
+        
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#9">[ date ]</a>
+              <a href="thread.html#9">[ thread ]</a>
+              <a href="subject.html#9">[ subject ]</a>
+              <a href="author.html#9">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: gururamnath
+Date: 2006-09-07 03:10:46 +0200 (Thu, 07 Sep 2006)
+New Revision: 74
+
+Modified:
+   trunk/FeedParser.h
+Log:
+Auto type checking
+
+Modified: trunk/FeedParser.h
+===================================================================
+--- trunk/FeedParser.h	2006-03-01 02:31:26 UTC (rev 73)
++++ trunk/FeedParser.h	2006-09-07 01:10:46 UTC (rev 74)
+@@ -22,6 +22,11 @@
+ 
+ 	CFeedParser(const char* url) : m_type(FPFT_UNKNOWN)
+ 	{
++		ParseFeed(url);
++	}
++
++	FeedType ParseFeed(const char* url)
++	{
+ 		MSXML2::IXMLDOMDocument2Ptr xmldocument;
+ 		xmldocument.CreateInstance(_uuidof(MSXML2::DOMDocument));
+ 		ATLASSERT(xmldocument != NULL);
+@@ -33,7 +38,7 @@
+ 		if(xmldocument-&gt;parseError-&gt;errorCode != 0)
+ 		{
+ 			m_error = (char*)xmldocument-&gt;parseError-&gt;reason;
+-			return;
++			return FPFT_UNKNOWN;
+ 		}
+ 
+ 		MSXML2::IXMLDOMNodePtr node;
+@@ -289,8 +294,43 @@
+ 				break;
+ 			}
+ 		}
++
++		return m_type;
+ 	}
+ 	
++	CAtlString AutoDiscoverFeed(const char* url)
++	{
++		CAtlString strURLBase = url;
++		if (strURLBase.GetLength() &lt; 1)
++			return &quot;&quot;;
++
++		if (strURLBase.GetAt(strURLBase.GetLength()-1) != '/')
++			strURLBase += &quot;/&quot;;
++
++		CAtlArray&lt;CAtlString&gt; arry;
++		arry.Add(strURLBase+&quot;atom.xml&quot;);
++		arry.Add(strURLBase+&quot;wp-rss2.php&quot;);
++		arry.Add(strURLBase+&quot;index.rss&quot;);
++		arry.Add(strURLBase+&quot;index.rdf&quot;);
++		arry.Add(strURLBase+&quot;rss.aspx&quot;);
++		arry.Add(strURLBase+&quot;Rss.aspx&quot;);
++		arry.Add(strURLBase+&quot;feed.rss&quot;);
++		arry.Add(strURLBase+&quot;rss.php&quot;);
++		arry.Add(strURLBase+&quot;feed.xml&quot;);
++		arry.Add(strURLBase+&quot;feed/rss2/&quot;);
++		arry.Add(strURLBase+&quot;rss2/&quot;);
++		arry.Add(strURLBase+&quot;index.xml&quot;);
++		
++		for (int i = 0 ; i &lt; arry.GetCount();++i)
++		{
++			if ( ParseFeed(arry.GetAt(i)) != FPFT_UNKNOWN)
++				return arry.GetAt(i);
++		}
++
++		return &quot;&quot;;
++		
++	}
++
+ 	void HTMLUnencode(CAtlString&amp; s)
+ 	{
+ 		CAtlString sRet;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#9">[ date ]</a>
+              <a href="thread.html#9">[ thread ]</a>
+              <a href="subject.html#9">[ subject ]</a>
+              <a href="author.html#9">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/feedit-svn">More information about the Feedit-svn
+mailing list</a><br>
+</body></html>

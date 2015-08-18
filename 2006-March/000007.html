@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Feedit-svn] r72 - trunk
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/feedit-svn/2006-March/index.html" >
+   <LINK REL="made" HREF="mailto:feedit-svn%40lists.berlios.de?Subject=Re%3A%20%5BFeedit-svn%5D%20r72%20-%20trunk&In-Reply-To=%3C200603010230.k212UdUM014922%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000008.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Feedit-svn] r72 - trunk</H1>
+    <B>gururamnath at BerliOS</B> 
+    <A HREF="mailto:feedit-svn%40lists.berlios.de?Subject=Re%3A%20%5BFeedit-svn%5D%20r72%20-%20trunk&In-Reply-To=%3C200603010230.k212UdUM014922%40sheep.berlios.de%3E"
+       TITLE="[Feedit-svn] r72 - trunk">gururamnath at berlios.de
+       </A><BR>
+    <I>Wed Mar  1 03:30:39 CET 2006</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000008.html">[Feedit-svn] r73 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#7">[ date ]</a>
+              <a href="thread.html#7">[ thread ]</a>
+              <a href="subject.html#7">[ subject ]</a>
+              <a href="author.html#7">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: gururamnath
+Date: 2006-03-01 03:30:35 +0100 (Wed, 01 Mar 2006)
+New Revision: 72
+
+Modified:
+   trunk/MainFrm.h
+Log:
+Added an option to use a debug database
+
+Modified: trunk/MainFrm.h
+===================================================================
+--- trunk/MainFrm.h	2006-02-26 17:51:22 UTC (rev 71)
++++ trunk/MainFrm.h	2006-03-01 02:30:35 UTC (rev 72)
+@@ -60,8 +60,11 @@
+ 		{
+ 			::CreateDirectory(m_dbPath, NULL);
+ 		}
+-
++#ifdef newTest
++		::PathAppend(m_dbPath, &quot;FeedIt_debug.mdb&quot;);
++#else
+ 		::PathAppend(m_dbPath, &quot;FeedIt.mdb&quot;);
++#endif		
+ 
+ 		if(::GetFileAttributes(m_dbPath) == INVALID_FILE_ATTRIBUTES)
+ 		{
+@@ -2347,6 +2350,7 @@
+ 		command-&gt;Execute(NULL, NULL, 0);
+ 		RefreshList();
+ 		RefreshTree();
++		return 0;
+ 	}
+ 
+ 	//Let the users purge the news Items permanently :o)	
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000008.html">[Feedit-svn] r73 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#7">[ date ]</a>
+              <a href="thread.html#7">[ thread ]</a>
+              <a href="subject.html#7">[ subject ]</a>
+              <a href="author.html#7">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/feedit-svn">More information about the Feedit-svn
+mailing list</a><br>
+</body></html>

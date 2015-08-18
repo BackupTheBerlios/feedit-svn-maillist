@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Feedit-svn] r71 - trunk
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/feedit-svn/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:feedit-svn%40lists.berlios.de?Subject=Re%3A%20%5BFeedit-svn%5D%20r71%20-%20trunk&In-Reply-To=%3C200602261751.k1QHpNUV007854%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000005.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Feedit-svn] r71 - trunk</H1>
+    <B>gururamnath at BerliOS</B> 
+    <A HREF="mailto:feedit-svn%40lists.berlios.de?Subject=Re%3A%20%5BFeedit-svn%5D%20r71%20-%20trunk&In-Reply-To=%3C200602261751.k1QHpNUV007854%40sheep.berlios.de%3E"
+       TITLE="[Feedit-svn] r71 - trunk">gururamnath at berlios.de
+       </A><BR>
+    <I>Sun Feb 26 18:51:23 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000005.html">[Feedit-svn] r70 - trunk
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#6">[ date ]</a>
+              <a href="thread.html#6">[ thread ]</a>
+              <a href="subject.html#6">[ subject ]</a>
+              <a href="author.html#6">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: gururamnath
+Date: 2006-02-26 18:51:22 +0100 (Sun, 26 Feb 2006)
+New Revision: 71
+
+Modified:
+   trunk/TrayIcon.h
+Log:
+Changed the timeout of the tray information tooltip to 10 sec
+
+Modified: trunk/TrayIcon.h
+===================================================================
+--- trunk/TrayIcon.h	2006-02-26 17:50:44 UTC (rev 70)
++++ trunk/TrayIcon.h	2006-02-26 17:51:22 UTC (rev 71)
+@@ -75,7 +75,7 @@
+ 			return false;
+ 		m_nid.uFlags = NIF_INFO;
+ 		m_nid.dwInfoFlags = infoflags;
+-		m_nid.uTimeout = 30;
++		m_nid.uTimeout = 10;
+ 		_tcsncpy(m_nid.szInfo, info, sizeof(m_nid.szInfo));
+ 		_tcsncpy(m_nid.szInfoTitle, infotitle, sizeof(m_nid.szInfoTitle));
+ 		return Shell_NotifyIcon(NIM_MODIFY, &amp;m_nid) ? true : false;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000005.html">[Feedit-svn] r70 - trunk
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#6">[ date ]</a>
+              <a href="thread.html#6">[ thread ]</a>
+              <a href="subject.html#6">[ subject ]</a>
+              <a href="author.html#6">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/feedit-svn">More information about the Feedit-svn
+mailing list</a><br>
+</body></html>

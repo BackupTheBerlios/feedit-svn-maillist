@@ -1,0 +1,171 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Feedit-svn] r69 - trunk
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/feedit-svn/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:feedit-svn%40lists.berlios.de?Subject=Re%3A%20%5BFeedit-svn%5D%20r69%20-%20trunk&In-Reply-To=%3C200602261749.k1QHncBW005252%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000003.html">
+   <LINK REL="Next"  HREF="000005.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Feedit-svn] r69 - trunk</H1>
+    <B>gururamnath at BerliOS</B> 
+    <A HREF="mailto:feedit-svn%40lists.berlios.de?Subject=Re%3A%20%5BFeedit-svn%5D%20r69%20-%20trunk&In-Reply-To=%3C200602261749.k1QHncBW005252%40sheep.berlios.de%3E"
+       TITLE="[Feedit-svn] r69 - trunk">gururamnath at berlios.de
+       </A><BR>
+    <I>Sun Feb 26 18:49:38 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000003.html">[Feedit-svn] r68 - trunk
+</A></li>
+        <LI>Next message: <A HREF="000005.html">[Feedit-svn] r70 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#4">[ date ]</a>
+              <a href="thread.html#4">[ thread ]</a>
+              <a href="subject.html#4">[ subject ]</a>
+              <a href="author.html#4">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: gururamnath
+Date: 2006-02-26 18:49:35 +0100 (Sun, 26 Feb 2006)
+New Revision: 69
+
+Modified:
+   trunk/FeedIt.rc
+   trunk/resource.h
+Log:
+Added the Delete All News item menu
+
+Modified: trunk/FeedIt.rc
+===================================================================
+--- trunk/FeedIt.rc	2006-02-26 17:48:53 UTC (rev 68)
++++ trunk/FeedIt.rc	2006-02-26 17:49:35 UTC (rev 69)
+@@ -152,6 +152,9 @@
+         MENUITEM &quot;Retrieve Deleted Items&quot;,      ID__FILE_RETRIVEDELETEDITEMS
+         MENUITEM &quot;Purge Deleted Items&quot;,         ID__FILE_PURGEDELETEDITEMS
+         MENUITEM SEPARATOR
++        MENUITEM &quot;Delete All News Item&quot;,        ID__FILE_DELETEALLNEWSITEM
++        , INACTIVE
++        MENUITEM SEPARATOR
+         MENUITEM &quot;&amp;Delete\tShift+Del&quot;,          ID_FILE_DELETE
+     END
+ END
+@@ -185,17 +188,17 @@
+ // Dialog
+ //
+ 
+-IDD_ABOUTBOX DIALOGEX 0, 0, 187, 102
++IDD_ABOUTBOX DIALOGEX 0, 0, 171, 97
+ STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+ CAPTION &quot;About&quot;
+ FONT 8, &quot;MS Sans Serif&quot;, 0, 0, 0x0
+ BEGIN
+-    DEFPUSHBUTTON   &quot;OK&quot;,IDOK,130,81,50,14
+-    CTEXT           &quot;FeedIt %s&quot;,IDC_ABOUTTEXT,25,50,78,8
+-    ICON            IDR_MAINFRAME,IDC_STATIC,55,26,20,20
+-    GROUPBOX        &quot;&quot;,IDC_STATIC,7,7,115,88
+-    LTEXT           &quot;(C) 2004 Sandro Tolaini&quot;,IDC_STATIC,26,66,75,8
+-    LTEXT           &quot;<A HREF="https://lists.berlios.de/mailman/listinfo/feedit-svn">sandro at focuseek.com</A>&quot;,IDC_STATIC,27,78,74,8,SS_NOTIFY
++    DEFPUSHBUTTON   &quot;OK&quot;,IDOK,114,82,50,14
++    CTEXT           &quot;FeedIt %s&quot;,IDC_ABOUTTEXT,43,42,78,8
++    ICON            IDR_MAINFRAME,IDC_STATIC,71,14,21,20
++    GROUPBOX        &quot;&quot;,IDC_STATIC,7,7,156,73
++    LTEXT           &quot;(C) 2004 Sandro Tolaini&quot;,IDC_STATIC,47,53,77,8
++    LTEXT           &quot;(C) 2005- 2006 Guru Kathiresan&quot;,IDC_STATIC,33,65,100,8
+ END
+ 
+ IDD_STRING DIALOGEX 0, 0, 186, 67
+@@ -262,9 +265,9 @@
+     IDD_ABOUTBOX, DIALOG
+     BEGIN
+         LEFTMARGIN, 7
+-        RIGHTMARGIN, 180
++        RIGHTMARGIN, 164
+         TOPMARGIN, 7
+-        BOTTOMMARGIN, 95
++        BOTTOMMARGIN, 90
+     END
+ 
+     IDD_STRING, DIALOG
+@@ -330,8 +333,8 @@
+ //
+ 
+ VS_VERSION_INFO VERSIONINFO
+- FILEVERSION 1,0,3,2
+- PRODUCTVERSION 1,0,3,2
++ FILEVERSION 1,0,4,0
++ PRODUCTVERSION 1,0,4,0
+  FILEFLAGSMASK 0x3fL
+ #ifdef _DEBUG
+  FILEFLAGS 0x1L
+@@ -347,12 +350,12 @@
+         BLOCK &quot;040904b0&quot;
+         BEGIN
+             VALUE &quot;FileDescription&quot;, &quot;FeedIt Module&quot;
+-            VALUE &quot;FileVersion&quot;, &quot;1, 0, 3, 2&quot;
++            VALUE &quot;FileVersion&quot;, &quot;1, 0, 4, 0&quot;
+             VALUE &quot;InternalName&quot;, &quot;FeedIt&quot;
+-            VALUE &quot;LegalCopyright&quot;, &quot;Copyright 2004-2005&quot;
++            VALUE &quot;LegalCopyright&quot;, &quot;Copyright 2004-2006&quot;
+             VALUE &quot;OriginalFilename&quot;, &quot;FeedIt.exe&quot;
+             VALUE &quot;ProductName&quot;, &quot;FeedIt Module&quot;
+-            VALUE &quot;ProductVersion&quot;, &quot;1, 0, 3, 2&quot;
++            VALUE &quot;ProductVersion&quot;, &quot;1, 0, 4, 0&quot;
+         END
+     END
+     BLOCK &quot;VarFileInfo&quot;
+
+Modified: trunk/resource.h
+===================================================================
+--- trunk/resource.h	2006-02-26 17:48:53 UTC (rev 68)
++++ trunk/resource.h	2006-02-26 17:49:35 UTC (rev 69)
+@@ -52,13 +52,14 @@
+ #define ID_ACTIONS_DELETEITEM           32828
+ #define ID__FILE_RETRIVEDELETEDITEMS    32832
+ #define ID__FILE_PURGEDELETEDITEMS      32834
++#define ID__FILE_DELETEALLNEWSITEM      32836
+ 
+ // Next default values for new objects
+ // 
+ #ifdef APSTUDIO_INVOKED
+ #ifndef APSTUDIO_READONLY_SYMBOLS
+ #define _APS_NEXT_RESOURCE_VALUE        212
+-#define _APS_NEXT_COMMAND_VALUE         32835
++#define _APS_NEXT_COMMAND_VALUE         32837
+ #define _APS_NEXT_CONTROL_VALUE         1019
+ #define _APS_NEXT_SYMED_VALUE           101
+ #endif
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000003.html">[Feedit-svn] r68 - trunk
+</A></li>
+	<LI>Next message: <A HREF="000005.html">[Feedit-svn] r70 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#4">[ date ]</a>
+              <a href="thread.html#4">[ thread ]</a>
+              <a href="subject.html#4">[ subject ]</a>
+              <a href="author.html#4">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/feedit-svn">More information about the Feedit-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,347 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Feedit-svn] r70 - trunk
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/feedit-svn/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:feedit-svn%40lists.berlios.de?Subject=Re%3A%20%5BFeedit-svn%5D%20r70%20-%20trunk&In-Reply-To=%3C200602261750.k1QHojCL006788%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000004.html">
+   <LINK REL="Next"  HREF="000006.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Feedit-svn] r70 - trunk</H1>
+    <B>gururamnath at BerliOS</B> 
+    <A HREF="mailto:feedit-svn%40lists.berlios.de?Subject=Re%3A%20%5BFeedit-svn%5D%20r70%20-%20trunk&In-Reply-To=%3C200602261750.k1QHojCL006788%40sheep.berlios.de%3E"
+       TITLE="[Feedit-svn] r70 - trunk">gururamnath at berlios.de
+       </A><BR>
+    <I>Sun Feb 26 18:50:45 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000004.html">[Feedit-svn] r69 - trunk
+</A></li>
+        <LI>Next message: <A HREF="000006.html">[Feedit-svn] r71 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#5">[ date ]</a>
+              <a href="thread.html#5">[ thread ]</a>
+              <a href="subject.html#5">[ subject ]</a>
+              <a href="author.html#5">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: gururamnath
+Date: 2006-02-26 18:50:44 +0100 (Sun, 26 Feb 2006)
+New Revision: 70
+
+Modified:
+   trunk/MainFrm.h
+Log:
+1)Ability to delete all news items
+2)Ability remember the last read/selected folder/folder
+
+Modified: trunk/MainFrm.h
+===================================================================
+--- trunk/MainFrm.h	2006-02-26 17:49:35 UTC (rev 69)
++++ trunk/MainFrm.h	2006-02-26 17:50:44 UTC (rev 70)
+@@ -96,10 +96,12 @@
+ 			connection-&gt;Execute(_bstr_t(&quot;CREATE INDEX FeedsI1 ON Feeds (FolderID)&quot;), NULL, 0);
+ 			connection-&gt;Execute(_bstr_t(&quot;INSERT INTO Feeds (FolderID, Title, URL, LastUpdate, RefreshInterval, MaxAge, NavigateURL) VALUES (0, 'FeedIt development blog', '<A HREF="http://feedit.blogspot.com/atom.xml">http://feedit.blogspot.com/atom.xml</A>', '2000/01/01', -1, -1, 0)&quot;), NULL, 0);
+ 			connection-&gt;Execute(_bstr_t(&quot;INSERT INTO Feeds (FolderID, Title, URL, LastUpdate, RefreshInterval, MaxAge, NavigateURL) VALUES (1, 'Slashdot', '<A HREF="http://slashdot.org/index.rss">http://slashdot.org/index.rss</A>', '2000/01/01', -1, -1, 0)&quot;), NULL, 0);
++			connection-&gt;Execute(_bstr_t(&quot;INSERT INTO Configuration (Name, CurrentValue) VALUES ('DefaultFeedSelection', '<A HREF="http://slashdot.org/index.rss">http://slashdot.org/index.rss</A>')&quot;), NULL, 0);
+ 			connection-&gt;Execute(_bstr_t(&quot;INSERT INTO Feeds (FolderID, Title, URL, LastUpdate, RefreshInterval, MaxAge, NavigateURL) VALUES (1, 'OSNews', '<A HREF="http://www.osnews.com/files/recent.rdf">http://www.osnews.com/files/recent.rdf</A>', '2000/01/01', -1, -1, 0)&quot;), NULL, 0);
+ 			connection-&gt;Execute(_bstr_t(&quot;INSERT INTO Feeds (FolderID, Title, URL, LastUpdate, RefreshInterval, MaxAge, NavigateURL) VALUES (1, 'The Register', '<A HREF="http://www.theregister.com/headlines.rss">http://www.theregister.com/headlines.rss</A>', '2000/01/01', -1, -1, 0)&quot;), NULL, 0);
+ 			connection-&gt;Execute(_bstr_t(&quot;CREATE TABLE News (ID AUTOINCREMENT UNIQUE NOT NULL, FeedID INTEGER NOT NULL, Title VARCHAR(255) NOT NULL, URL VARCHAR(255) NOT NULL, Issued DATETIME NOT NULL, Description MEMO, Unread VARCHAR(1) NOT NULL, Flagged VARCHAR(1) NOT NULL, ItemDeleted VARCHAR(1) NOT NULL, CONSTRAINT NewsC1 UNIQUE (FeedID, URL))&quot;), NULL, 0);
+ 			connection-&gt;Execute(_bstr_t(&quot;CREATE INDEX NewsI1 ON News (FeedID)&quot;), NULL, 0);
++						
+ 		}
+ 		catch (...) 
+ 		{
+@@ -427,12 +429,14 @@
+ 			UISetState(ID_VIEW_PROPERTIES, UPDUI_ENABLED);
+ 			UISetState(ID__FILE_RETRIVEDELETEDITEMS, UPDUI_ENABLED);
+ 			UISetState(ID__FILE_PURGEDELETEDITEMS, UPDUI_ENABLED);
++			UISetState(ID__FILE_DELETEALLNEWSITEM, UPDUI_ENABLED);			
+ 		}
+ 		else
+ 		{
+ 			UISetState(ID_VIEW_PROPERTIES, UPDUI_DISABLED);
+ 			UISetState(ID__FILE_RETRIVEDELETEDITEMS, UPDUI_DISABLED);
+ 			UISetState(ID__FILE_PURGEDELETEDITEMS, UPDUI_DISABLED);
++			UISetState(ID__FILE_DELETEALLNEWSITEM, UPDUI_DISABLED);
+ 		}
+ 
+ 		if(feeddata != NULL || folderdata != NULL || i == m_feedsRoot)
+@@ -469,6 +473,7 @@
+ 		UPDATE_ELEMENT(ID_FILE_DELETE, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
+ 		UPDATE_ELEMENT(ID__FILE_RETRIVEDELETEDITEMS, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
+ 		UPDATE_ELEMENT(ID__FILE_PURGEDELETEDITEMS, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
++		UPDATE_ELEMENT(ID__FILE_DELETEALLNEWSITEM, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)		
+ 		UPDATE_ELEMENT(ID_VIEW_PROPERTIES, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
+ 		UPDATE_ELEMENT(ID_ACTIONS_SENDMAIL, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
+ 		UPDATE_ELEMENT(ID_ACTIONS_OPENINBROWSER, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
+@@ -499,6 +504,7 @@
+ 		COMMAND_ID_HANDLER(ID_FILE_DELETE, OnFileDelete)
+ 		COMMAND_ID_HANDLER(ID__FILE_RETRIVEDELETEDITEMS, OnFileRetriveDeletedItems)
+ 		COMMAND_ID_HANDLER(ID__FILE_PURGEDELETEDITEMS, OnFilePurgeDeletedItems)
++		COMMAND_ID_HANDLER(ID__FILE_DELETEALLNEWSITEM, OnFileDeleteAllNewsItems)		
+ 		COMMAND_ID_HANDLER(ID_FILE_EXPORT_OPML, OnFileExportOPML)
+ 		COMMAND_ID_HANDLER(ID_FILE_IMPORT_OPML, OnFileImportOPML)
+ 		COMMAND_ID_HANDLER(ID_VIEW_PROPERTIES, OnViewProperties)
+@@ -1049,12 +1055,13 @@
+ 			recordset-&gt;MoveFirst();
+ 			feeddata-&gt;m_error = recordset-&gt;Fields-&gt;GetItem(&quot;LastError&quot;)-&gt;Value;
+ 			feeddata-&gt;m_link = recordset-&gt;Fields-&gt;GetItem(&quot;Link&quot;)-&gt;Value;
++			feeddata-&gt;m_rsslink = recordset-&gt;Fields-&gt;GetItem(&quot;URL&quot;)-&gt;Value;
+ 			feeddata-&gt;m_image = recordset-&gt;Fields-&gt;GetItem(&quot;ImageLink&quot;)-&gt;Value;
+ 			feeddata-&gt;m_description = recordset-&gt;Fields-&gt;GetItem(&quot;Description&quot;)-&gt;Value;
+ 		}
+ 	}
+ 
+-	int GetConfiguration(const char* name, int def)
++	CAtlString GetConfiguration(const char* name, CAtlString def)
+ 	{
+ 		ADODB::_CommandPtr command;
+ 		command.CreateInstance(__uuidof(ADODB::Command));
+@@ -1067,26 +1074,53 @@
+ 		if(!recordset-&gt;EndOfFile)
+ 		{
+ 			recordset-&gt;MoveFirst();
+-			return atoi((_bstr_t)recordset-&gt;Fields-&gt;GetItem(&quot;CurrentValue&quot;)-&gt;Value);
++			return CAtlString(recordset-&gt;Fields-&gt;GetItem(&quot;CurrentValue&quot;)-&gt;Value);
+ 		}
+-
+ 		return def;
+ 	}
+ 
+-	void SetConfiguration(const char* name, int val)
++	int GetConfiguration(const char* name, int def)
+ 	{
++		CAtlString tmp;
++		tmp.Format(&quot;%d&quot;,def);
++		return atoi(GetConfiguration(name,tmp));
++	}
++
++	void SetConfiguration(const char* name, CAtlString val)
++	{
++		CAtlString valstr;
++		valstr.Format(&quot;%s&quot;, val);
++
+ 		ADODB::_CommandPtr command;
+ 		command.CreateInstance(__uuidof(ADODB::Command));
+ 		ATLASSERT(command != NULL);
+-		command-&gt;ActiveConnection = m_connection;
+-		command-&gt;CommandText = &quot;UPDATE Configuration SET CurrentValue=? WHERE Name=?&quot;;
+-		CAtlString valstr;
+-		valstr.Format(&quot;%d&quot;, val);
+-		command-&gt;GetParameters()-&gt;Append(command-&gt;CreateParameter(_bstr_t(), ADODB::adBSTR, ADODB::adParamInput, NULL, (_bstr_t)valstr));
++		command-&gt;ActiveConnection = m_connection;		
++		command-&gt;CommandText = &quot;SELECT * FROM Configuration WHERE Name=?&quot;;
+ 		command-&gt;GetParameters()-&gt;Append(command-&gt;CreateParameter(_bstr_t(), ADODB::adBSTR, ADODB::adParamInput, NULL, name));
+-		command-&gt;Execute(NULL, NULL, 0);
++		ADODB::_RecordsetPtr recordset = command-&gt;Execute(NULL, NULL, 0);
++
++		ADODB::_CommandPtr updatecommand;
++		updatecommand.CreateInstance(__uuidof(ADODB::Command));
++		ATLASSERT(updatecommand != NULL);
++		updatecommand-&gt;ActiveConnection = m_connection;
++
++		if(recordset-&gt;EndOfFile)		
++			updatecommand-&gt;CommandText = &quot;INSERT INTO Configuration (CurrentValue, Name) VALUES (?,?)&quot;;
++		else		
++			updatecommand-&gt;CommandText = &quot;UPDATE Configuration SET CurrentValue=? WHERE Name=?&quot;;
++
++		updatecommand-&gt;GetParameters()-&gt;Append(updatecommand-&gt;CreateParameter(_bstr_t(), ADODB::adBSTR, ADODB::adParamInput, NULL, (_bstr_t)valstr));
++		updatecommand-&gt;GetParameters()-&gt;Append(updatecommand-&gt;CreateParameter(_bstr_t(), ADODB::adBSTR, ADODB::adParamInput, NULL, name));
++		updatecommand-&gt;Execute(NULL, NULL, 0);
+ 	}
+ 
++	void SetConfiguration(const char* name, int val)
++	{
++		CAtlString tmp;
++		tmp.Format(&quot;%d&quot;,val);
++		SetConfiguration(name,tmp);
++	}
++
+ 	int GetUnreadItemCount(int feedid)
+ 	{
+ 		ADODB::_CommandPtr command;
+@@ -1209,6 +1243,9 @@
+ 		command-&gt;ActiveConnection = m_connection;
+ 		command-&gt;CommandText = &quot;SELECT * FROM Folders&quot;;
+ 		ADODB::_RecordsetPtr recordset = command-&gt;Execute(NULL, NULL, 0);
++		HTREEITEM firstFeedItem = NULL;
++		HTREEITEM previousSelectedFeedItem = NULL;
++		CAtlString strSelectedFeed = GetConfiguration(&quot;DefaultFeedSelection&quot;,&quot;&quot;);
+ 
+ 		if(!recordset-&gt;EndOfFile)
+ 		{
+@@ -1220,6 +1257,9 @@
+ 				folderitemdata-&gt;m_id = recordset-&gt;Fields-&gt;GetItem(&quot;ID&quot;)-&gt;Value;
+ 				folderitemdata-&gt;m_name = recordset-&gt;Fields-&gt;GetItem(&quot;Name&quot;)-&gt;Value;
+ 				HTREEITEM folderitem = m_treeView.InsertItem(folderitemdata-&gt;m_name, m_feedsRoot, TVI_LAST);
++				if ( (previousSelectedFeedItem == NULL) &amp;&amp; (strSelectedFeed.CompareNoCase((bstr_t)recordset-&gt;Fields-&gt;GetItem(&quot;ID&quot;)-&gt;Value) ==0) )
++					previousSelectedFeedItem = folderitem;
++
+ 				m_treeView.SetItemImage(folderitem, 1, 1);
+ 				m_treeView.SetItemData(folderitem, (DWORD_PTR)folderitemdata);
+ 				ADODB::_CommandPtr subcommand;
+@@ -1245,7 +1285,12 @@
+ 						feeditemdata-&gt;m_description = subrecordset-&gt;Fields-&gt;GetItem(&quot;Description&quot;)-&gt;Value;
+ 						feeditemdata-&gt;m_unread = GetUnreadItemCount(feeditemdata-&gt;m_id);
+ 						feeditemdata-&gt;m_navigateURL = atoi(_bstr_t(subrecordset-&gt;Fields-&gt;GetItem(&quot;NavigateURL&quot;)-&gt;Value));
++						feeditemdata-&gt;m_rsslink = subrecordset-&gt;Fields-&gt;GetItem(&quot;URL&quot;)-&gt;Value;
+ 						HTREEITEM feeditem = m_treeView.InsertItem(feeditemdata-&gt;m_title, folderitem, TVI_LAST);
++						if (firstFeedItem == NULL)
++							firstFeedItem = feeditem;
++						if ( (previousSelectedFeedItem == NULL) &amp;&amp; (strSelectedFeed.CompareNoCase(feeditemdata-&gt;m_rsslink) == 0) )
++							previousSelectedFeedItem = feeditem;
+ 
+ 						if(feeditemdata-&gt;m_error.GetLength() == 0)
+ 							m_treeView.SetItemImage(feeditem, 0, 0);
+@@ -1285,7 +1330,12 @@
+ 				feeditemdata-&gt;m_description = subrecordset-&gt;Fields-&gt;GetItem(&quot;Description&quot;)-&gt;Value;
+ 				feeditemdata-&gt;m_unread = GetUnreadItemCount(feeditemdata-&gt;m_id);
+ 				feeditemdata-&gt;m_navigateURL = atoi(_bstr_t(subrecordset-&gt;Fields-&gt;GetItem(&quot;NavigateURL&quot;)-&gt;Value));
++				feeditemdata-&gt;m_rsslink = subrecordset-&gt;Fields-&gt;GetItem(&quot;URL&quot;)-&gt;Value;
+ 				HTREEITEM feeditem = m_treeView.InsertItem(feeditemdata-&gt;m_title, m_feedsRoot, TVI_LAST);
++				if (firstFeedItem == NULL)
++					firstFeedItem = feeditem;
++				if ( (previousSelectedFeedItem == NULL) &amp;&amp; (strSelectedFeed.CompareNoCase(feeditemdata-&gt;m_rsslink) == 0) )
++					previousSelectedFeedItem = feeditem;
+ 
+ 				if(feeditemdata-&gt;m_error.GetLength() == 0)
+ 					m_treeView.SetItemImage(feeditem, 0, 0);
+@@ -1338,7 +1388,17 @@
+ 		m_updateThread.AddHandle(m_hTimer, this, NULL);
+ 		RestartTimer(0);
+ 
+-		m_treeView.SelectItem(m_feedsRoot);
++		if (firstFeedItem != NULL)
++		{
++			if (previousSelectedFeedItem != NULL)
++				m_treeView.SelectItem(previousSelectedFeedItem);
++			else
++				m_treeView.SelectItem(firstFeedItem);
++		}
++		else
++			m_treeView.SelectItem(m_feedsRoot);
++		
++
+ 		return 0;
+ 	}
+ 
+@@ -1604,6 +1664,7 @@
+ 		HTREEITEM i = m_treeView.GetSelectedItem();
+ 		FeedData* feeddata = dynamic_cast&lt;FeedData*&gt;((TreeData*)m_treeView.GetItemData(i));
+ 		FolderData* folderdata = dynamic_cast&lt;FolderData*&gt;((TreeData*)m_treeView.GetItemData(i));
++		CAtlString feedurl;
+ 
+ 		if(feeddata != NULL || folderdata != NULL || i == m_feedsRoot || i == m_searchRoot)
+ 		{
+@@ -1622,15 +1683,18 @@
+ 				{
+ 					command-&gt;CommandText = &quot;SELECT Feeds.*, News.* FROM Feeds INNER JOIN News ON Feeds.ID = News.FeedID WHERE News.ItemDeleted &lt;&gt; '1' AND FeedID=? ORDER BY Issued&quot;;
+ 					command-&gt;GetParameters()-&gt;Append(command-&gt;CreateParameter(_bstr_t(), ADODB::adInteger, ADODB::adParamInput, NULL, feeddata-&gt;m_id));
++					feedurl = feeddata-&gt;m_rsslink;
+ 				}
+ 				else if(folderdata != NULL)
+ 				{
+ 					command-&gt;CommandText = &quot;SELECT Feeds.*, News.* FROM Feeds INNER JOIN News ON Feeds.ID = News.FeedID WHERE  News.ItemDeleted &lt;&gt; '1' AND Feeds.FolderID=? ORDER BY Issued&quot;;
+-					command-&gt;GetParameters()-&gt;Append(command-&gt;CreateParameter(_bstr_t(), ADODB::adInteger, ADODB::adParamInput, NULL, folderdata-&gt;m_id));
++					command-&gt;GetParameters()-&gt;Append(command-&gt;CreateParameter(_bstr_t(), ADODB::adInteger, ADODB::adParamInput, NULL, folderdata-&gt;m_id));					
++					feedurl.Format(&quot;%d&quot;,folderdata-&gt;m_id);
+ 				}
+ 				else
+ 				{
+ 					command-&gt;CommandText = &quot;SELECT Feeds.*, News.* FROM Feeds INNER JOIN News ON Feeds.ID = News.FeedID  WHERE News.ItemDeleted &lt;&gt; '1' ORDER BY Issued&quot;;
++					feedurl = &quot;&quot;;
+ 				}
+ 
+ 				ADODB::_RecordsetPtr recordset = command-&gt;Execute(NULL, NULL, 0);
+@@ -1682,6 +1746,9 @@
+ 			}
+ 		}
+ 
++
++
++		SetConfiguration(&quot;DefaultFeedSelection&quot;,feedurl);
+ 		ShowSummaryPage();
+ 		return 0;
+ 	}
+@@ -2128,6 +2195,7 @@
+ 					itemdata-&gt;m_id = id;
+ 					itemdata-&gt;m_title = fp.m_title;
+ 					itemdata-&gt;m_unread = 0;
++					itemdata-&gt;m_rsslink = dlg.m_value;
+ 					HTREEITEM item = m_treeView.InsertItem(fp.m_title, m_feedsRoot, TVI_LAST);
+ 					m_treeView.SetItemImage(item, 0, 0);
+ 					m_treeView.SetItemData(item, (DWORD_PTR)itemdata);
+@@ -2258,6 +2326,29 @@
+ 		return 0;
+ 	}
+ 
++	
++	LRESULT OnFileDeleteAllNewsItems(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL&amp; /*bHandled*/)
++	{
++		if (IDYES != AtlMessageBox(m_hWnd,&quot;Do you want to delete all the news items of the selected Feed ?&quot; , &quot;Confirm&quot;, MB_YESNO | MB_ICONQUESTION))
++		{
++			return 0;
++		}
++		HTREEITEM i = m_treeView.GetSelectedItem();
++		if ( (i == NULL) ||(dynamic_cast&lt;FeedData*&gt;((TreeData*)m_treeView.GetItemData(i)) == NULL) )
++			return 0;
++
++		ADODB::_CommandPtr command;
++		command.CreateInstance(__uuidof(ADODB::Command));
++		ATLASSERT(command != NULL);
++		command-&gt;ActiveConnection = m_connection;
++		
++		command-&gt;CommandText = &quot;UPDATE News SET ItemDeleted = '1' ,  Unread='0' WHERE FeedID=?&quot;;
++		command-&gt;GetParameters()-&gt;Append(command-&gt;CreateParameter(_bstr_t(), ADODB::adInteger, ADODB::adParamInput, NULL, dynamic_cast&lt;FeedData*&gt;((TreeData*)m_treeView.GetItemData(i))-&gt;m_id));
++		command-&gt;Execute(NULL, NULL, 0);
++		RefreshList();
++		RefreshTree();
++	}
++
+ 	//Let the users purge the news Items permanently :o)	
+ 	LRESULT OnFilePurgeDeletedItems(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL&amp; /*bHandled*/)
+ 	{
+@@ -2494,6 +2585,7 @@
+ 							itemdata-&gt;m_title = title;
+ 							itemdata-&gt;m_unread = 0;
+ 							itemdata-&gt;m_link = link;
++							itemdata-&gt;m_rsslink = url;
+ 							HTREEITEM item = m_treeView.InsertItem(title, currentRoot, TVI_LAST);
+ 							m_treeView.SetItemImage(item, 0, 0);
+ 							m_treeView.SetItemData(item, (DWORD_PTR)itemdata);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000004.html">[Feedit-svn] r69 - trunk
+</A></li>
+	<LI>Next message: <A HREF="000006.html">[Feedit-svn] r71 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#5">[ date ]</a>
+              <a href="thread.html#5">[ thread ]</a>
+              <a href="subject.html#5">[ subject ]</a>
+              <a href="author.html#5">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/feedit-svn">More information about the Feedit-svn
+mailing list</a><br>
+</body></html>

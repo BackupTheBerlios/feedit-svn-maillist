@@ -1,0 +1,241 @@
+From gururamnath at berlios.de  Wed Mar  1 03:30:39 2006
+From: gururamnath at berlios.de (gururamnath at BerliOS)
+Date: Wed, 1 Mar 2006 03:30:39 +0100
+Subject: [Feedit-svn] r72 - trunk
+Message-ID: <200603010230.k212UdUM014922@sheep.berlios.de>
+
+Author: gururamnath
+Date: 2006-03-01 03:30:35 +0100 (Wed, 01 Mar 2006)
+New Revision: 72
+
+Modified:
+   trunk/MainFrm.h
+Log:
+Added an option to use a debug database
+
+Modified: trunk/MainFrm.h
+===================================================================
+--- trunk/MainFrm.h	2006-02-26 17:51:22 UTC (rev 71)
++++ trunk/MainFrm.h	2006-03-01 02:30:35 UTC (rev 72)
+@@ -60,8 +60,11 @@
+ 		{
+ 			::CreateDirectory(m_dbPath, NULL);
+ 		}
+-
++#ifdef newTest
++		::PathAppend(m_dbPath, "FeedIt_debug.mdb");
++#else
+ 		::PathAppend(m_dbPath, "FeedIt.mdb");
++#endif		
+ 
+ 		if(::GetFileAttributes(m_dbPath) == INVALID_FILE_ATTRIBUTES)
+ 		{
+@@ -2347,6 +2350,7 @@
+ 		command->Execute(NULL, NULL, 0);
+ 		RefreshList();
+ 		RefreshTree();
++		return 0;
+ 	}
+ 
+ 	//Let the users purge the news Items permanently :o)	
+
+
+
+From gururamnath at berlios.de  Wed Mar  1 03:31:32 2006
+From: gururamnath at berlios.de (gururamnath at BerliOS)
+Date: Wed, 1 Mar 2006 03:31:32 +0100
+Subject: [Feedit-svn] r73 - trunk
+Message-ID: <200603010231.k212VWuQ015392@sheep.berlios.de>
+
+Author: gururamnath
+Date: 2006-03-01 03:31:26 +0100 (Wed, 01 Mar 2006)
+New Revision: 73
+
+Modified:
+   trunk/FeedParser.h
+Log:
+Added support for the non english alphabets
+
+Modified: trunk/FeedParser.h
+===================================================================
+--- trunk/FeedParser.h	2006-03-01 02:30:35 UTC (rev 72)
++++ trunk/FeedParser.h	2006-03-01 02:31:26 UTC (rev 73)
+@@ -47,7 +47,10 @@
+ 			MSXML2::IXMLDOMNodePtr descriptionnode = node->selectSingleNode(_bstr_t("rss09:description"));
+ 
+ 			if(titlenode != NULL)
++			{
+ 				m_title = (LPTSTR)titlenode->text;
++				HTMLUnencode(m_title);
++			}
+ 
+ 			if(linknode != NULL)
+ 				m_link = (LPTSTR)linknode->text;
+@@ -67,7 +70,10 @@
+ 			MSXML2::IXMLDOMNodePtr descriptionnode = node->selectSingleNode(_bstr_t("rss10:description"));
+ 
+ 			if(titlenode != NULL)
++			{
+ 				m_title = (LPTSTR)titlenode->text;
++				HTMLUnencode(m_title);
++			}
+ 
+ 			if(linknode != NULL)
+ 				m_link = (LPTSTR)linknode->text;
+@@ -87,7 +93,10 @@
+ 			MSXML2::IXMLDOMNodePtr descriptionnode = node->selectSingleNode(_bstr_t("description"));
+ 
+ 			if(titlenode != NULL)
++			{
+ 				m_title = (LPTSTR)titlenode->text;
++				HTMLUnencode(m_title);
++			}
+ 
+ 			if(linknode != NULL)
+ 				m_link = (LPTSTR)linknode->text;
+@@ -107,7 +116,10 @@
+ 			MSXML2::IXMLDOMNodePtr descriptionnode = node->selectSingleNode(_bstr_t("atom:tagline"));
+ 
+ 			if(titlenode != NULL)
++			{
+ 				m_title = (LPTSTR)titlenode->text;
++				HTMLUnencode(m_title);
++			}
+ 
+ 			if(linknode != NULL)
+ 				m_link = (LPTSTR)linknode->text;
+@@ -138,7 +150,10 @@
+ 						FeedItem item;
+ 
+ 						if(titlenode != NULL)
++						{
+ 							item.m_title = (LPTSTR)titlenode->text;
++							HTMLUnencode(item.m_title);
++						}
+ 
+ 						if(urlnode != NULL)
+ 							item.m_url = (LPTSTR)urlnode->text;
+@@ -172,7 +187,10 @@
+ 						FeedItem item;
+ 
+ 						if(titlenode != NULL)
++						{
+ 							item.m_title = (LPTSTR)titlenode->text;
++							HTMLUnencode(item.m_title);
++						}
+ 
+ 						if(urlnode != NULL)
+ 							item.m_url = (LPTSTR)urlnode->text;
+@@ -213,7 +231,10 @@
+ 						FeedItem item;
+ 
+ 						if(titlenode != NULL)
++						{	
+ 							item.m_title = (LPTSTR)titlenode->text;
++							HTMLUnencode(item.m_title);
++						}
+ 
+ 						if(urlnode != NULL)
+ 							item.m_url = (LPTSTR)urlnode->text;
+@@ -247,7 +268,10 @@
+ 						FeedItem item;
+ 
+ 						if(titlenode != NULL)
++						{
+ 							item.m_title = (LPTSTR)titlenode->text;
++							HTMLUnencode(item.m_title);
++						}
+ 
+ 						if(urlnode != NULL)
+ 							item.m_url = (LPTSTR)urlnode->text;
+@@ -266,7 +290,87 @@
+ 			}
+ 		}
+ 	}
++	
++	void HTMLUnencode(CAtlString& s)
++	{
++		CAtlString sRet;
+ 
++		for(size_t i = 0; i < s.GetLength(); ++i)
++		{
++			if(s.GetString()[i] == '&')
++			{
++				if(s.GetLength() - i >= 6)
++				{
++					if(s.GetString()[i] == '&' &&
++						s.GetString()[i+1] == '#' &&
++						isdigit(s.GetString()[i+2]) &&
++						isdigit(s.GetString()[i+3]) &&
++						isdigit(s.GetString()[i+4]) &&
++						s.GetString()[i+5] == ';')
++					{
++						sRet += (char)( 
++							((s.GetString()[i+2] - '0') * 100) +
++						    ((s.GetString()[i+3] - '0') * 10) +
++						    ((s.GetString()[i+4] - '0') ));
++						i += 5;
++						continue;
++					}
++				}
++				if(s.GetLength() - i >= 6)
++				{
++					if(memcmp(&s.GetString()[i], "&apos;", 6) == 0)
++					{
++						sRet += '\'';
++						i += 5;
++						continue;
++					}
++					if(memcmp(&s.GetString()[i], "&nbsp;", 6) == 0)
++					{
++						sRet += ' ';
++						i += 5;
++						continue;
++					}
++					if(memcmp(&s.GetString()[i], "&quot;", 6) == 0)
++					{
++						sRet += '\"';
++						i += 5;
++						continue;
++					}
++				}
++				if(s.GetLength() - i >= 5 && memcmp(&s.GetString()[i], "&amp;", 5) == 0)
++				{
++					sRet += '&';
++					i += 4; //todo:  We should re-scan like this:
++					//                    wxTmemmove((wxChar*)&s.c_str()[i+1],
++					//                                (wxChar*)&s.c_str()[i+5],
++					//                                s.length() - (i+5) );
++					//                    s.c_str()[i+5]
++					//                    i -= 1;
++					continue;
++				}
++				if(s.GetLength() - i >= 4)
++				{
++					if(memcmp(&s.GetString()[i], "&lt;", 4) == 0)
++					{
++						sRet += '<';
++						i += 3;
++						continue;
++					}
++					if(memcmp(&s.GetString()[i], "&gt;", 4) == 0)
++					{
++						sRet += '>';
++						i += 3;
++						continue;
++					}
++				}
++			}
++
++			sRet += s.GetString()[i];
++		}
++
++		s = sRet;
++	} 
++
+ 	FeedType m_type;
+ 	CAtlString m_error;
+ 	CAtlString m_title;
+
+
+
